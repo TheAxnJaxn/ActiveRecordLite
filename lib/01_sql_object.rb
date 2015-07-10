@@ -16,6 +16,18 @@ class SQLObject
   end
 
   def self.finalize!
+    columns_to_finalize = self.columns
+
+    columns_to_finalize.each do |col|
+      # creates getter and setter methods for each column
+      define_method("#{col}") do
+        attributes[col]
+      end
+
+      define_method("#{col}=") do |value|
+        attributes[col] = value
+      end
+    end
   end
 
   def self.table_name=(table_name)
@@ -46,7 +58,9 @@ class SQLObject
   end
 
   def attributes
-    # ...
+    # initializes @attributes to an empty hash
+    # or stores any new values added to it
+    @attributes ||= {}
   end
 
   def attribute_values
