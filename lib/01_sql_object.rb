@@ -4,7 +4,6 @@ require 'active_support/inflector'
 class SQLObject
   def self.columns
     # gets the columns from the table and symbolizes them
-
     col_and_data = DBConnection.execute2(<<-SQL)
                       SELECT
                         *
@@ -16,14 +15,11 @@ class SQLObject
   end
 
   def self.finalize!
-    columns_to_finalize = self.columns
-
-    columns_to_finalize.each do |col|
-      # creates getter and setter methods for each column
+    # creates getter and setter methods for each column
+    columns.each do |col|
       define_method("#{col}") do
         attributes[col]
       end
-
       define_method("#{col}=") do |value|
         attributes[col] = value
       end
@@ -42,11 +38,23 @@ class SQLObject
   end
 
   def self.all
-    # ...
+    # fetches all the records from the database
+    results = DBConnection.execute(<<-SQL)
+                SELECT
+                  *
+                FROM
+                  #{table_name}
+              SQL
+    parse_all(results)
   end
 
   def self.parse_all(results)
-    # ...
+    # turn each of the Hashes into instances of the Class
+    obj_array = []
+    results.each do |hash|
+      obj_array << self.new(hash)
+    end
+    obj_array
   end
 
   def self.find(id)
@@ -54,7 +62,13 @@ class SQLObject
   end
 
   def initialize(params = {})
-    # ...
+    # takes in a single params hash and iterates through it to:
+    #  raise error if the attr_name is not among the columns
+    #  or set the attribute by calling the setter method and #send
+    params.each do |attr_name, attr_value|
+      raise "unknown attribute '#{attr_name}'" unless self.class.columns.include?(attr_name.to_sym)
+      send(attr_name.to_s + "=", attr_value)
+    end
   end
 
   def attributes
