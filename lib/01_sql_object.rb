@@ -1,7 +1,5 @@
 require_relative 'db_connection'
 require 'active_support/inflector'
-# NB: the attr_accessor we wrote in phase 0 is NOT used in the rest
-# of this project. It was only a warm up.
 
 class SQLObject
   def self.columns
@@ -12,11 +10,14 @@ class SQLObject
   end
 
   def self.table_name=(table_name)
-    # ...
+    # sets the table name for the class
+    @table_name = table_name
   end
 
   def self.table_name
-    # ...
+    # gets the name of the table for the class
+    @table_name || self.name.tableize
+    # both .name or .to_s would work here
   end
 
   def self.all
