@@ -58,7 +58,17 @@ class SQLObject
   end
 
   def self.find(id)
-    # ...
+    # returns a single object with the given id
+    # write a new SQL query that will fetch at most one record
+    results = DBConnection.execute(<<-SQL)
+                SELECT
+                  *
+                FROM
+                  #{table_name}
+                WHERE
+                  id = #{id}
+              SQL
+    parse_all(results).first
   end
 
   def initialize(params = {})
@@ -78,11 +88,25 @@ class SQLObject
   end
 
   def attribute_values
-    # ...
+    # returns an array of the values for each attribute
+    self.class.columns.map { |col_name| send(col_name.to_s+"=", ) }
+    # call send on the instance to get the value
+
+    # Once you have the #attribute_values method working, I passed this into DBConnection.execute using the splat operator
   end
 
   def insert
-    # ...
+    # adds instance's values in to its table
+    col_names = self.class.columns.join(",")
+    question_marks = (["?"]*(self.class.columns.count)).join(",")
+    DBConnection.execute(<<-SQL, col_names)
+      INSERT INTO
+        #{self.class.table_name} (#{col_names})
+      VALUES
+        (#{question_marks})
+      SQL
+
+    # When the DB inserts the record, it will assign the record an ID. After the INSERT query is run, we want to update our SQLObject instance with the assigned ID. Check out the DBConnection file for a helpful method.
   end
 
   def update
