@@ -1,5 +1,6 @@
 require_relative 'db_connection'
 require 'active_support/inflector'
+require 'byebug'
 
 class SQLObject
   def self.columns
@@ -89,24 +90,22 @@ class SQLObject
 
   def attribute_values
     # returns an array of the values for each attribute
-    self.class.columns.map { |col_name| send(col_name.to_s+"=", ) }
-    # call send on the instance to get the value
-
-    # Once you have the #attribute_values method working, I passed this into DBConnection.execute using the splat operator
+    self.class.columns.map { |col_name| self.send(col_name) }
   end
 
   def insert
     # adds instance's values in to its table
-    col_names = self.class.columns.join(",")
-    question_marks = (["?"]*(self.class.columns.count)).join(",")
-    DBConnection.execute(<<-SQL, col_names)
+    col_names = self.class.columns.join(", ")
+    question_marks = (["?"]*(self.class.columns.count)).join(", ")
+    DBConnection.execute(<<-SQL, *attribute_values)
       INSERT INTO
         #{self.class.table_name} (#{col_names})
       VALUES
         (#{question_marks})
       SQL
 
-    # When the DB inserts the record, it will assign the record an ID. After the INSERT query is run, we want to update our SQLObject instance with the assigned ID. Check out the DBConnection file for a helpful method.
+    # updates SQLObject instance with newly assigned ID after insert
+    self.id = DBConnection.last_insert_row_id
   end
 
   def update
