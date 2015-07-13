@@ -109,10 +109,20 @@ class SQLObject
   end
 
   def update
-    # ...
+    # changes attributes
+    col_set = self.class.columns.map { |attr| "#{attr} = ?"}.join(", ")
+    DBConnection.execute(<<-SQL, *attribute_values, id)
+      UPDATE
+        #{self.class.table_name}
+      SET
+        #{col_set}
+      WHERE
+        #{self.class.table_name}.id = ?
+    SQL
   end
 
   def save
-    # ...
+    # calls save/update as appropriate
+    id.nil? ? insert : update
   end
 end
