@@ -80,5 +80,6 @@ module Associatable
 end
 
 class SQLObject
+  # Mixes in Associatable
   extend Associatable
 end
