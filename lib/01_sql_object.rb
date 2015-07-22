@@ -122,7 +122,7 @@ class SQLObject
   end
 
   def save
-    # calls save/update as appropriate
+    # calls insert/update as appropriate
     id.nil? ? insert : update
   end
 end
