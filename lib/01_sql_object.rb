@@ -1,6 +1,5 @@
 require_relative 'db_connection'
 require 'active_support/inflector'
-require 'byebug'
 
 class SQLObject
   def self.columns
@@ -60,7 +59,6 @@ class SQLObject
 
   def self.find(id)
     # returns a single object with the given id
-    # write a new SQL query that will fetch at most one record
     results = DBConnection.execute(<<-SQL)
                 SELECT
                   *
