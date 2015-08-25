@@ -7,7 +7,10 @@ Active Record Lite:
 - [X] Write an Associatable module to mixin with SQLObject for belongs_to and has_many associations
 
 Dependancies:
-- Active Support Gem
+- Ruby
+- Active Support
+- RSpec for testing
+- DBConnection & SQLite3
 
 To do:
 - [ ] Combine with Rails Lite
